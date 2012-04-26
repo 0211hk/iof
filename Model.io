@@ -51,19 +51,20 @@ Model := Object clone do(
             applyOr := method(key, val,self whereList append("or");key)
         
         
-            selectBuild := method(
+            selectBuild := method(name,
                 fieldStr := self fieldList join(",")
                 whereStr := self whereList reverse join(" ")
-                select := Sequence with("select ", fieldStr, " from ", self asUnderCase(type asString),  " where ", whereStr) asMutable
+                select := Sequence with("select ", fieldStr, " from ", self asSnakeCase(name),  " where ", whereStr) asMutable
                 if(self orderStr != nil, select = select appendSeq(self orderStr))
                 if(self limitStr != nil, select = select appendSeq(self limitStr))
                 if(self offsetStr != nil, select = select appendSeq(self offsetStr))
                 select
             )
         
-            asUnderCase := method(val,
-                val foreach(k,k println)
-                val
+            asSnakeCase := method(val,
+                re := Python import("re")
+                s := re sub( "(.)([A-Z][a-z]+)", "\\1_\\2", val)
+                re sub("([a-z0-9])([A-Z])", "\\1_\\2", s) asLowercase
             )
         )
     )
@@ -86,16 +87,17 @@ Model := Object clone do(
     find := method(
         self offset(1)
         self limit(1)
-        sql := self Builder selectBuild
+        type println
+        sql := self Builder selectBuild(type asString)
         sql println
     )
 
     findAll := method(
-        sql := self Builder selectBuild
+        sql := self Builder selectBuild(type asString)
         sql println
     )
 
-    save := method(form,
+    save := method(
         
     )
 
@@ -120,5 +122,5 @@ Form := Object clone do(
 )
 
 App := Model clone
+App type println
 App field(id, name, status) where(status eq 1 _and  name neq "hoge" _or id in list(1,2,3,4)) find
-

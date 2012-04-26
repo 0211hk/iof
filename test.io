@@ -1,17 +1,4 @@
-#!/usr/local/bin/io -
-Obj := Object clone do(
-    m := method(bl,
-        bl type println
-        e := try(
-            doMessage(bl)
-        )
-        e catch(Exception,
-            writeln("error")
-        )
-    )
-)
+re := Python import("re")
 
-o := Obj clone
-o m(block(
-    Exception raise("generic foo exception")
-))
+s1 := re sub( "(.)([A-Z][a-z]+)", "\\1_\\2", "CamelCase")
+re sub("([a-z0-9])([A-Z])", "\\1_\\2", s1) asLowercase println
